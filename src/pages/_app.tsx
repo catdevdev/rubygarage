@@ -1,6 +1,29 @@
-import '@/styles/globals.css'
-import type { AppProps } from 'next/app'
+import "../app/styles/globals.css";
 
-export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
-}
+import { ConfigProvider, theme } from "antd";
+import type { AppProps } from "next/app";
+import { Fragment } from "react";
+import { Provider } from "react-redux";
+
+import { wrapper } from "@/app/store/store";
+import { Page } from "@/shared/types/page";
+
+type Props = AppProps & {
+  Component: Page;
+};
+
+const App = ({ Component, ...rest }: Props) => {
+  const getLayout = Component.getLayout ?? ((page) => page);
+  const Layout = Component.layout ?? Fragment;
+  const { store, props } = wrapper.useWrappedStore(rest);
+
+  return (
+    <Provider store={store}>
+      <ConfigProvider>
+        <Layout>{getLayout(<Component {...props.pageProps} />)}</Layout>
+      </ConfigProvider>
+    </Provider>
+  );
+};
+
+export default App;
